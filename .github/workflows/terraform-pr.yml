@@ -48,7 +48,11 @@ jobs:
       - name: 7. Formatear salida del plan
         id: show_plan
         run: |
-          PLAN_OUTPUT=$(terraform show -no-color tfplan | head -c 60000 || echo "Error al leer plan")
+          if [ -f tfplan ]; then
+            PLAN_OUTPUT=$(terraform show -no-color tfplan | head -c 60000)
+          else
+            PLAN_OUTPUT="Error: El archivo de plan (tfplan) no se pudo generar."
+          fi
           echo "plan_text<<EOF" >> $GITHUB_OUTPUT
           echo "$PLAN_OUTPUT" >> $GITHUB_OUTPUT
           echo "EOF" >> $GITHUB_OUTPUT
