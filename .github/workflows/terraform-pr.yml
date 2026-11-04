@@ -18,6 +18,7 @@ jobs:
       pull-requests: write
     env:
       DOCKER_HOST: unix:///var/run/docker.sock
+
     steps:
       - name: 1. Checkout del código
         uses: actions/checkout@v4
@@ -60,18 +61,24 @@ jobs:
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
+            const fmtOutcome = '${{ steps.fmt.outcome }}';
+            const initOutcome = '${{ steps.init.outcome }}';
+            const validateOutcome = '${{ steps.validate.outcome }}';
+            const planOutcome = '${{ steps.plan.outcome }}';
+            
             const output = `#### Estado de Validación de Infraestructura (TP11B)
-            * **Formato HCL (\`terraform fmt\`):** \`${{ steps.fmt.outcome }}\`
-            * **Inicialización (\`terraform init\`):** \`${{ steps.init.outcome }}\`
-            * **Validación de Código (\`terraform validate\`):** \`${{ steps.validate.outcome }}\`
-            * **Plan de Ejecución (\`terraform plan\`):** \`${{ steps.plan.outcome }}\`
+            * **Formato HCL (\`terraform fmt\`):** \`${fmtOutcome}\`
+            * **Inicialización (\`terraform init\`):** \`${initOutcome}\`
+            * **Validación de Código (\`terraform validate\`):** \`${validateOutcome}\`
+            * **Plan de Ejecución (\`terraform plan\`):** \`${planOutcome}\`
             <details><summary>Ver Resumen del Terraform Plan</summary>
             \`\`\`hcl
-            \${{ steps.show_plan.outputs.plan_text }}
+            ${{ steps.show_plan.outputs.plan_text }}
             \`\`\`
             </details>
-            *Autor: @${{ github.actor }} | Commit: \`\${{ github.sha }}\`*`;
-            github.rest.issues.createComment({
+            *Autor: @${{ github.actor }} | Commit: \`${{ github.sha }}\`*`;
+            
+            await github.rest.issues.createComment({
               issue_number: context.issue.number,
               owner: context.repo.owner,
               repo: context.repo.repo,
