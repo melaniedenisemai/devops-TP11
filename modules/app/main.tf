@@ -2,10 +2,16 @@ terraform {
   required_providers {
     docker = {
       source  = "kreuzwerker/docker"
-      version = "~> 3.0.0"
+      version = "~> 3.0"
     }
   }
 }
+
+variable "project_name" { type = string }
+variable "environment" { type = string }
+variable "backend_replicas" { type = number }
+variable "net_app_name" { type = string }
+variable "vol_postgres_name" { type = string }
 
 resource "docker_image" "python" {
   name = "python:3.12-slim"
@@ -28,7 +34,8 @@ resource "docker_container" "postgres" {
 }
 
 resource "docker_container" "backend" {
-  name    = "backend"
+  count   = var.backend_replicas
+  name    = var.backend_replicas == 1 ? "backend" : "backend-${count.index + 1}"
   image   = docker_image.python.image_id
   command = ["python3", "-c", "import time; time.sleep(86400)"]
   networks_advanced { name = var.net_app_name }

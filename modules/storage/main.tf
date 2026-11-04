@@ -2,10 +2,13 @@ terraform {
   required_providers {
     docker = {
       source  = "kreuzwerker/docker"
-      version = "~> 3.0.0"
+      version = "~> 3.0"
     }
   }
 }
+
+variable "project_name" { type = string }
+variable "environment" { type = string }
 
 resource "docker_volume" "vol_postgres" {
   name = "${var.project_name}-postgres-${var.environment}"
