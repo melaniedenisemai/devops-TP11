@@ -16,7 +16,8 @@ jobs:
     permissions:
       contents: read
       pull-requests: write
-
+    env:
+      DOCKER_HOST: unix:///var/run/docker.sock
     steps:
       - name: 1. Checkout del código
         uses: actions/checkout@v4
@@ -48,11 +49,7 @@ jobs:
       - name: 7. Formatear salida del plan
         id: show_plan
         run: |
-          if [ -f tfplan ]; then
-            PLAN_OUTPUT=$(terraform show -no-color tfplan | head -c 60000)
-          else
-            PLAN_OUTPUT="Error: El archivo de plan (tfplan) no se pudo generar."
-          fi
+          PLAN_OUTPUT=$(terraform show -no-color tfplan | head -c 60000 || echo "Error al leer plan")
           echo "plan_text<<EOF" >> $GITHUB_OUTPUT
           echo "$PLAN_OUTPUT" >> $GITHUB_OUTPUT
           echo "EOF" >> $GITHUB_OUTPUT
@@ -70,10 +67,10 @@ jobs:
             * **Plan de Ejecución (\`terraform plan\`):** \`${{ steps.plan.outcome }}\`
             <details><summary>Ver Resumen del Terraform Plan</summary>
             \`\`\`hcl
-            ${{ steps.show_plan.outputs.plan_text }}
+            \${{ steps.show_plan.outputs.plan_text }}
             \`\`\`
             </details>
-            *Autor: @${{ github.actor }} | Commit: \`${{ github.sha }}\`*`;
+            *Autor: @${{ github.actor }} | Commit: \`\${{ github.sha }}\`*`;
             github.rest.issues.createComment({
               issue_number: context.issue.number,
               owner: context.repo.owner,
