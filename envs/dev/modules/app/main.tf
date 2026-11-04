@@ -12,8 +12,8 @@ resource "docker_image" "python" {
 }
 
 resource "docker_container" "postgres" {
-  name  = "postgres"
-  image = docker_image.python.image_id
+  name    = "postgres"
+  image   = docker_image.python.image_id
   command = ["python3", "-c", "import time; time.sleep(86400)"]
   networks_advanced { name = var.net_app_name }
   mounts {
@@ -28,8 +28,8 @@ resource "docker_container" "postgres" {
 }
 
 resource "docker_container" "backend" {
-  name  = "backend"
-  image = docker_image.python.image_id
+  name    = "backend"
+  image   = docker_image.python.image_id
   command = ["python3", "-c", "import time; time.sleep(86400)"]
   networks_advanced { name = var.net_app_name }
   labels {
@@ -39,8 +39,8 @@ resource "docker_container" "backend" {
 }
 
 resource "docker_container" "frontend" {
-  name  = "frontend"
-  image = docker_image.python.image_id
+  name    = "frontend"
+  image   = docker_image.python.image_id
   command = ["python3", "-c", "import time; time.sleep(86400)"]
   networks_advanced { name = var.net_app_name }
   ports {
